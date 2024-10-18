@@ -142,7 +142,7 @@ const server = createServer((req, res) => {
 
             db.removeUser(userId);
 
-            res.statusCode = 200;
+            res.statusCode = 204;
             res.end();
           } else {
             res.statusCode = 404;
