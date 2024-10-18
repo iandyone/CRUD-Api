@@ -16,6 +16,7 @@ describe('Simple crud API test', () => {
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual([]);
   });
+
   test('Should return an user object user was created', async () => {
     const response = await request(server).post(BASE_URL).send(user);
 

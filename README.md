@@ -29,17 +29,9 @@ PORT=8080
 HOST=localhost
 ```
 
-### Step 3: Run the tests
+### Step 3: Start the application
 
-To run the tests, use the following command:
-
-```bash
-npm run test
-```
-
-### Step 4: Start the application
-
-You can start the application in development or production mode:
+Start the application in development or production mode:
 
 ```bash
 npm run start:dev
@@ -51,6 +43,16 @@ or with Yarn:
 ```bash
 yarn start:dev
 yarn start:prod
+```
+
+Additionally you can run jest tests
+```bash
+npm run test
+```
+
+or with Yarn
+```bash
+yarn test
 ```
 
 ---
