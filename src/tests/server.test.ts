@@ -41,7 +41,10 @@ describe('Simple crud API test', () => {
     const userData: User = (await request(server).put(`${BASE_URL}/${savedUser.id}`).send(updatedUserDto)).body;
 
     expect(userData.username).toBe(updatedUserDto.username);
+
     expect(userData.id).toBe(savedUser.id);
+    expect(userData.age).toBe(savedUser.age);
+    expect(userData.hobbies.join('')).toBe(savedUser.hobbies.join(''));
   });
 
   test('Should remove user from database', async () => {

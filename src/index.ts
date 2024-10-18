@@ -120,7 +120,7 @@ export const server = createServer((req, res) => {
                 return;
               }
 
-              const userDto = new UserUpdateDto(userData);
+              const userDto = new UserUpdateDto(user, userData);
               const updatedUser = db.updateUser(userId, userDto);
 
               res.setHeader('Content-Type', 'application/json');

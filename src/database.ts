@@ -18,6 +18,8 @@ export class DataBase {
 
   updateUser(userId: string, userData: Partial<User>) {
     this.users = this.users.map((user) => (userId === user.id ? { ...user, ...userData } : user));
+    console.log(this.users);
+
     return this.getUser(userId);
   }
 

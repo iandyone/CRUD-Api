@@ -5,9 +5,9 @@ export class UserUpdateDto implements User {
   username: string;
   hobbies: string[];
 
-  constructor({ age, hobbies, username }: User) {
-    this.age = age;
-    this.hobbies = hobbies;
-    this.username = username;
+  constructor(userData: User, { age, hobbies, username }: User) {
+    this.age = age || userData.age;
+    this.hobbies = hobbies || userData.hobbies;
+    this.username = username || userData.username;
   }
 }
