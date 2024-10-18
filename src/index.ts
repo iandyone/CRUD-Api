@@ -6,13 +6,14 @@ import { parseUsersUrl, validateUser } from './utils';
 import * as uuid from 'uuid';
 import { User } from './types';
 import { UserDto } from './dto/user.dto';
+import { UserUpdateDto } from './dto/update-user.dto';
 
 config();
 
 const PORT = Number(process.env.PORT);
 const HOST = process.env.HOST;
-const { GET, POST } = METHODS;
-const { USERS } = ENDPOINTS;
+const { GET, POST, PUT } = METHODS;
+const { USERS, USER } = ENDPOINTS;
 
 const db = new DataBase();
 
@@ -29,7 +30,7 @@ const server = createServer((req, res) => {
 
       switch (req.method) {
         case GET:
-          if (url === USERS) {
+          if (url === USER || url === USERS) {
             const users = db.getUsers();
 
             res.statusCode = 200;
@@ -39,7 +40,7 @@ const server = createServer((req, res) => {
 
             if (!isValidUserId) {
               res.statusCode = 400;
-              res.end('user id is not valid uuid');
+              res.end('user.id is not a valid uuid');
               return;
             }
 
@@ -53,11 +54,14 @@ const server = createServer((req, res) => {
 
             res.statusCode = 200;
             res.end(JSON.stringify(user));
+          } else {
+            res.statusCode = 404;
+            res.end('Unknown request url');
           }
           break;
 
         case POST:
-          if (url === USERS) {
+          if (url === USER || url === USERS) {
             let body = '';
 
             req.on('data', (chunk) => (body += chunk));
@@ -81,6 +85,36 @@ const server = createServer((req, res) => {
               res.statusCode = 201;
               res.end(JSON.stringify(userData));
             });
+          } else {
+            res.statusCode = 404;
+            res.end('Unknown request url');
+          }
+          break;
+        case PUT:
+          if (path === USERS && userId) {
+            let body = '';
+
+            req.on('data', (chunk) => (body += chunk));
+
+            req.on('end', () => {
+              const userData: User = JSON.parse(body);
+              const user = db.getUser(userId);
+
+              if (!user) {
+                res.statusCode = 404;
+                res.end('User not found');
+                return;
+              }
+
+              const userDto = new UserUpdateDto(userData);
+              const updatedUser = db.updateUser(userId, userDto);
+
+              res.statusCode = 200;
+              res.end(JSON.stringify(updatedUser));
+            });
+          } else {
+            res.statusCode = 404;
+            res.end('Unknown request url');
           }
           break;
         default:
