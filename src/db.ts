@@ -16,4 +16,9 @@ export class DataBase {
   getUser(userId: string) {
     return this.users.find(({ id }) => id === userId);
   }
+
+  createUser(user: User) {
+    this.users = [...this.users, user];
+    return user;
+  }
 }
