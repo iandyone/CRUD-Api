@@ -1,13 +1,7 @@
 import { User } from './types';
-// import * as uuid from 'uuid';
-
-const temp: User[] = [
-  // { id: '4ce6bcc7-0f67-4abf-a43b-cc87d72c01cb', age: 1, hobbies: ['a', 'b'], username: '' },
-  // { id: uuid.v4(), age: 1, hobbies: ['a', 'b'], username: '' },
-];
 
 export class DataBase {
-  constructor(private users: User[] = temp) {}
+  constructor(private users: User[] = []) {}
 
   getUsers() {
     return this.users;
@@ -25,5 +19,9 @@ export class DataBase {
   updateUser(userId: string, userData: Partial<User>) {
     this.users = this.users.map((user) => (userId === user.id ? { ...user, ...userData } : user));
     return this.getUser(userId);
+  }
+
+  removeUser(useId: string) {
+    this.users = this.users.filter(({ id }) => id !== useId);
   }
 }

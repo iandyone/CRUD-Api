@@ -1,18 +1,20 @@
 import { config } from 'dotenv';
 import { createServer } from 'http';
-import { ENDPOINTS, METHODS } from './constants';
-import { DataBase } from './db';
-import { parseUsersUrl, validateUser } from './utils';
 import * as uuid from 'uuid';
+
 import { User } from './types';
 import { UserDto } from './dto/user.dto';
+import { DataBase } from './db';
 import { UserUpdateDto } from './dto/update-user.dto';
+import { parseUsersUrl, validateUser } from './utils';
+import { ENDPOINTS, METHODS } from './constants';
 
 config();
 
 const PORT = Number(process.env.PORT);
 const HOST = process.env.HOST;
-const { GET, POST, PUT } = METHODS;
+
+const { GET, POST, PUT, DELETE } = METHODS;
 const { USERS, USER } = ENDPOINTS;
 
 const db = new DataBase();
@@ -28,14 +30,17 @@ const server = createServer((req, res) => {
     if (url.startsWith(USERS)) {
       const { path, userId } = parseUsersUrl(url);
 
+      const isValidUrl = url === USER || url === USERS;
+      const isValidUrlWithUserId = path === USERS && userId;
+
       switch (req.method) {
         case GET:
-          if (url === USER || url === USERS) {
+          if (isValidUrl) {
             const users = db.getUsers();
 
             res.statusCode = 200;
             res.end(JSON.stringify(users));
-          } else if (path === USERS && userId) {
+          } else if (isValidUrlWithUserId) {
             const isValidUserId = uuid.validate(userId);
 
             if (!isValidUserId) {
@@ -61,7 +66,7 @@ const server = createServer((req, res) => {
           break;
 
         case POST:
-          if (url === USER || url === USERS) {
+          if (isValidUrl) {
             let body = '';
 
             req.on('data', (chunk) => (body += chunk));
@@ -91,7 +96,7 @@ const server = createServer((req, res) => {
           }
           break;
         case PUT:
-          if (path === USERS && userId) {
+          if (isValidUrlWithUserId) {
             let body = '';
 
             req.on('data', (chunk) => (body += chunk));
@@ -112,6 +117,33 @@ const server = createServer((req, res) => {
               res.statusCode = 200;
               res.end(JSON.stringify(updatedUser));
             });
+          } else {
+            res.statusCode = 404;
+            res.end('Unknown request url');
+          }
+          break;
+        case DELETE:
+          if (isValidUrlWithUserId) {
+            const isValidUserId = uuid.validate(userId);
+
+            if (!isValidUserId) {
+              res.statusCode = 400;
+              res.end('User id is not a valid uuid');
+              return;
+            }
+
+            const user = db.getUser(userId);
+
+            if (!user) {
+              res.statusCode = 404;
+              res.end('User not found');
+              return;
+            }
+
+            db.removeUser(userId);
+
+            res.statusCode = 200;
+            res.end();
           } else {
             res.statusCode = 404;
             res.end('Unknown request url');
