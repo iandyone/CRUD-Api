@@ -4,3 +4,4 @@ export interface User {
   age: number;
   hobbies: string[] | null;
 }
+
