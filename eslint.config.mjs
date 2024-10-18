@@ -20,7 +20,6 @@ export default [
       'no-unused-vars': 'off',
       'prefer-const': 'error',
       'consistent-return': 'off',
-      'no-console': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
     },
   },

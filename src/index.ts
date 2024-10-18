@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 
 import { User } from './types';
 import { UserDto } from './dto/user.dto';
-import { DataBase } from './db';
+import { DataBase } from './database';
 import { UserUpdateDto } from './dto/update-user.dto';
 import { parseUsersUrl, validateUser } from './utils';
 import { ENDPOINTS, METHODS } from './constants';
@@ -19,7 +19,7 @@ const { USERS, USER } = ENDPOINTS;
 
 const db = new DataBase();
 
-const server = createServer((req, res) => {
+export const server = createServer((req, res) => {
   try {
     const baseURL = 'http://' + req.headers.host + '/';
     const reqUrl = new URL(req.url, baseURL);
@@ -38,12 +38,14 @@ const server = createServer((req, res) => {
           if (isValidUrl) {
             const users = db.getUsers();
 
+            res.setHeader('Content-Type', 'application/json');
             res.statusCode = 200;
             res.end(JSON.stringify(users));
           } else if (isValidUrlWithUserId) {
             const isValidUserId = uuid.validate(userId);
 
             if (!isValidUserId) {
+              res.setHeader('Content-Type', 'text/plain');
               res.statusCode = 400;
               res.end('user.id is not a valid uuid');
               return;
@@ -52,14 +54,17 @@ const server = createServer((req, res) => {
             const user = db.getUser(userId);
 
             if (!user) {
+              res.setHeader('Content-Type', 'text/plain');
               res.statusCode = 404;
               res.end('User not found');
               return;
             }
 
+            res.setHeader('Content-Type', 'application/json');
             res.statusCode = 200;
             res.end(JSON.stringify(user));
           } else {
+            res.setHeader('Content-Type', 'text/plain');
             res.statusCode = 404;
             res.end('Unknown request url');
           }
@@ -76,6 +81,7 @@ const server = createServer((req, res) => {
               const validationErrorMessage = validateUser(user);
 
               if (validationErrorMessage) {
+                res.setHeader('Content-Type', 'text/plain');
                 res.statusCode = 400;
                 res.end(validationErrorMessage);
 
@@ -87,10 +93,12 @@ const server = createServer((req, res) => {
               });
 
               const userData = db.createUser(userDto);
+              res.setHeader('Content-Type', 'application/json');
               res.statusCode = 201;
               res.end(JSON.stringify(userData));
             });
           } else {
+            res.setHeader('Content-Type', 'text/plain');
             res.statusCode = 404;
             res.end('Unknown request url');
           }
@@ -106,6 +114,7 @@ const server = createServer((req, res) => {
               const user = db.getUser(userId);
 
               if (!user) {
+                res.setHeader('Content-Type', 'text/plain');
                 res.statusCode = 404;
                 res.end('User not found');
                 return;
@@ -114,10 +123,12 @@ const server = createServer((req, res) => {
               const userDto = new UserUpdateDto(userData);
               const updatedUser = db.updateUser(userId, userDto);
 
+              res.setHeader('Content-Type', 'application/json');
               res.statusCode = 200;
               res.end(JSON.stringify(updatedUser));
             });
           } else {
+            res.setHeader('Content-Type', 'text/plain');
             res.statusCode = 404;
             res.end('Unknown request url');
           }
@@ -127,6 +138,7 @@ const server = createServer((req, res) => {
             const isValidUserId = uuid.validate(userId);
 
             if (!isValidUserId) {
+              res.setHeader('Content-Type', 'text/plain');
               res.statusCode = 400;
               res.end('User id is not a valid uuid');
               return;
@@ -135,6 +147,7 @@ const server = createServer((req, res) => {
             const user = db.getUser(userId);
 
             if (!user) {
+              res.setHeader('Content-Type', 'text/plain');
               res.statusCode = 404;
               res.end('User not found');
               return;
@@ -142,9 +155,11 @@ const server = createServer((req, res) => {
 
             db.removeUser(userId);
 
+            res.setHeader('Content-Type', 'text/plain');
             res.statusCode = 204;
             res.end();
           } else {
+            res.setHeader('Content-Type', 'text/plain');
             res.statusCode = 404;
             res.end('Unknown request url');
           }
@@ -153,10 +168,12 @@ const server = createServer((req, res) => {
           break;
       }
     } else {
+      res.setHeader('Content-Type', 'text/plain');
       res.statusCode = 404;
       res.end('Unknown request url');
     }
   } catch (error) {
+    res.setHeader('Content-Type', 'text/plain');
     res.statusCode = 500;
     console.log(error);
     res.end('Internal server error');
